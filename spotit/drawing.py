@@ -1,4 +1,3 @@
-import glob
 import math
 import random
 
@@ -14,21 +13,36 @@ from reportlab.pdfgen import canvas
 from .cards import create_cards
 
 
-def draw_cards(diameter, fill_color=colors.white, border_width=0, border_color=colors.white):
+def draw_cards(
+    diameter, fill_color=colors.white, border_width=0, border_color=colors.white
+):
     """Function called to draw a card's border."""
 
     # card's drawing
     drawing = Drawing(diameter, diameter)
 
     # card's border with margin
-    circle = Circle(diameter / 2, diameter / 2, diameter / 2, fillColor=border_color, strokeOpacity=0)
+    circle = Circle(
+        diameter / 2,
+        diameter / 2,
+        diameter / 2,
+        fillColor=border_color,
+        strokeOpacity=0,
+    )
     drawing.add(circle)
 
     # card's fill
-    circle = Circle(diameter / 2, diameter / 2, diameter / 2 - border_width, fillColor=fill_color, strokeOpacity=0)
+    circle = Circle(
+        diameter / 2,
+        diameter / 2,
+        diameter / 2 - border_width,
+        fillColor=fill_color,
+        strokeOpacity=0,
+    )
     drawing.add(circle)
 
     return drawing
+
 
 def draw_cards_images(c, images, card, sizes, diameter, margin, x, y):
     """Function called to draw a card's images."""
@@ -44,7 +58,9 @@ def draw_cards_images(c, images, card, sizes, diameter, margin, x, y):
         # calculate the center and diameter of a circle
         cx = margin + (circle.x + 1) / 2 * (diameter - 2 * margin)
         cy = margin + (circle.y + 1) / 2 * (diameter - 2 * margin)
-        r = circle.r * (diameter - 2 * margin) / 2 * 0.9  # leave some space between circles
+        r = (
+            circle.r * (diameter - 2 * margin) / 2 * 0.9
+        )  # leave some space between circles
 
         # # draw a circle around the image
         # def draw_circles():
@@ -70,22 +86,32 @@ def draw_cards_images(c, images, card, sizes, diameter, margin, x, y):
         phi = math.atan(height / width)
         a = 2 * r * math.cos(phi)
         b = 2 * r * math.sin(phi)
-        c.drawImage(img, -a/2, -b/2, a, b, 'auto')
+        c.drawImage(img, -a / 2, -b / 2, a, b, "auto")
 
         c.restoreState()
 
     return c
 
-def create_sheets(filename, order, images, sizes=[1, 2, 3, 4], seed=42, page_size='A4', diameter=80, margin=5):
+
+def create_sheets(
+    filename,
+    order,
+    images,
+    sizes=(1, 2, 3, 4),
+    seed=42,
+    page_size="A4",
+    diameter=80,
+    margin=5,
+):
     """Create the PDF with cards.
-    
+
     :param filename: filename of the PDF
     :type filename: str
     :param order: order of the game
     :type order: int
     :param images: list of files with images
     :type images: list
-    :param sizes: relative sizes of the images, defaults to [1, 2, 3, 4]
+    :param sizes: relative sizes of the images, defaults to (1, 2, 3, 4)
     :type sizes: list, optional
     :param seed: seed for random generator, defaults to 42
     :type seed: int, optional
@@ -96,15 +122,17 @@ def create_sheets(filename, order, images, sizes=[1, 2, 3, 4], seed=42, page_siz
     :param margin: margin from the card's border [mm], defaults to 5
     :type margin: int, optional
     """
-    
+
     # seed for random generator
     random.seed(seed)
 
     # size of the page
-    if type(page_size) == str:
+    if isinstance(page_size, str):
         page_size = eval(page_size)
-    elif type(page_size) == tuple:
-        page_size = ((page_size[0] * mm, page_size[1] * mm))
+    elif isinstance(page_size, tuple):
+        page_size = (page_size[0] * mm, page_size[1] * mm)
+    else:
+        raise ValueError("page_size should be a string or a tuple of ints")
 
     # diameter of the card
     diameter = diameter * mm
@@ -113,7 +141,7 @@ def create_sheets(filename, order, images, sizes=[1, 2, 3, 4], seed=42, page_siz
     margin = margin * mm
 
     # create the list of sets with images' numbers
-    cards, num_pictures = create_cards(order)
+    cards, _ = create_cards(order)
 
     # specifications of the sheet
     c = canvas.Canvas(filename, pagesize=page_size)
@@ -136,8 +164,22 @@ def create_sheets(filename, order, images, sizes=[1, 2, 3, 4], seed=42, page_siz
     for i, card in enumerate(cards):
         if i != 0 and i % (rows * columns) == 0:
             c.showPage()  # add a new page
-        renderPDF.draw(draw_cards(diameter, border_width=1, border_color=colors.black), c, x[i % columns], y[(i // columns) % rows])
-        c = draw_cards_images(c, images, card, sizes, diameter, margin, x[i % columns], y[(i // columns) % rows])
+        renderPDF.draw(
+            draw_cards(diameter, border_width=1, border_color=colors.black),
+            c,
+            x[i % columns],
+            y[(i // columns) % rows],
+        )
+        c = draw_cards_images(
+            c,
+            images,
+            card,
+            sizes,
+            diameter,
+            margin,
+            x[i % columns],
+            y[(i // columns) % rows],
+        )
 
     # save the canvas
     c.save()
