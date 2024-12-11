@@ -105,3 +105,4 @@ venv.bak/
 
 images/
 cards.pdf
+.DS_Store
