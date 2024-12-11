@@ -97,7 +97,7 @@ def create_sheets(
     filename,
     order,
     images,
-    sizes=(1, 2, 3, 4),
+    sizes=(2, 3, 4),
     seed=42,
     page_size="A4",
     diameter=80,
